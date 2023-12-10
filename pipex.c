@@ -3,65 +3,53 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gyong-si <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: gyong-si <gyongsi@student.42.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/06 17:18:22 by gyong-si          #+#    #+#             */
-/*   Updated: 2023/12/08 13:05:30 by gyong-si         ###   ########.fr       */
+/*   Updated: 2023/12/10 09:59:14 by gyong-si         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_utils.h"
 
-/**
-This function will get the correct filepath from envp depending on the 
-command. 
-**/
-char	*get_path(char *command, char **path_from_envp)
+void run_command(char *command, char **envp)
 {
-	char	*partial_path;
-	char	*complete_path;
-	char	**cmd;
-	int	i;
+	char **path_from_envp;
+	char **command_array;
+	char *command_path;
 
-	i = 0;
-	cmd = ft_split(command, ' ');
-	while (path_from_envp[i++])
+	path_from_envp = get_path_from_env(envp);
+	command_array = ft_split(command, " ");
+	command_path = get_path(command, path_from_envp);
+	if (execve(command_path, command_array, envp) == -1)
 	{
-		partial_path = ft_strjoin(path_from_envp[i], "/");
-		complete_path = ft_strjoin(partial_path, cmd[0]);
-		free(partial_path);
-		if (access(complete_path, F_OK | X_OK) == 0)
-		{
-			ft_free_array(cmd);
-			return (complete_path);
-		}
+		ft_putstr_fd("pipex: command not found: ", 2);
+		ft_putendl_fd(command_array[0], 2);
+		ft_free_array(command_array);
+		exit(0);
 	}
-	ft_free_array(cmd);
-	return (command);
 }
 
-/**
 void	child_process(char **av, int pipe_fd[2], char **envp)
 {
 	int	fd;
 	int	i;
 
-	fd = open_file(av[1], 0_RDONLY, 0666);
+	fd = open_file(av[1], O_RDONLY, 0666);
 	check_fd(fd, pipe_fd[1]);
 	close(pipe_fd[1]);
-	run_command(av[3], envp);
-} **/
+	run_command(av[2], envp);
+} 
 
-/**
 void	parent_process(char **av, int pipe_fd[2], char **envp)
 {
 	int	fd;
 
-	fd = open_file(av[4], 1);
+	fd = open_file(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	check_fd(pipe_fd[0], fd);
 	close(pipe_fd[0]);
-	run_command(av[4], envp);
-} **/
+	run_command(av[3], envp);
+} 
 
 
 int	main(int ac, char **av, char **envp)

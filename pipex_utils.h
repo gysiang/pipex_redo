@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex_utils.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gyong-si <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: gyong-si <gyongsi@student.42.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 17:21:51 by gyong-si          #+#    #+#             */
-/*   Updated: 2023/12/04 12:25:02 by gyong-si         ###   ########.fr       */
+/*   Updated: 2023/12/10 10:02:50 by gyong-si         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@
 # include "libft/libft.h"
 
 int	open_file(char *filename, int flags, mode_t mode);
-char	**get_path_from_env(char **envp);
+char *get_path(char *command, char **path_from_envp);
+char **get_path_from_env(char **envp);
+void check_fd(int int_fd, int out_fd);
 
 #endif

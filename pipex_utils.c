@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gyong-si <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: gyong-si <gyongsi@student.42.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/28 17:15:57 by gyong-si          #+#    #+#             */
-/*   Updated: 2023/12/08 11:47:47 by gyong-si         ###   ########.fr       */
+/*   Updated: 2023/12/10 10:01:08 by gyong-si         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,9 @@ int	open_file(char *filename, int flags, mode_t mode)
 	return (fd);
 }
 
+/**
+ * This function will get the all the paths from envp. It will first match to get the line starting with PATH and then save it in envp_path. If not null, it will then be split by ':'.
+*/
 char	**get_path_from_env(char **envp)
 {
 	int	i;
@@ -59,109 +62,33 @@ char	**get_path_from_env(char **envp)
 	}
 	return (envp_all_paths);
 }
+
 /**
-char	*get_path_from_env(char **envp, char *command)
+This function will get the correct filepath from envp depending on the
+command.
+**/
+char *get_path(char *command, char **path_from_envp)
 {
-	int			i;
-	char		*env_path;
-	char		*path;
-	char		*partial_path;
-	char		**allpartialpath;
-	char		**cmd_array;
+	char *partial_path;
+	char *complete_path;
+	char **cmd;
+	int i;
 
 	i = 0;
-	while (array[i] != NULL) 
+	cmd = ft_split(command, ' ');
+	while (path_from_envp[i++])
 	{
-		if (ft_strncmp(array[i], "PATH=", 5) == 0)
-		{
-			env_path = array[i] + 5;
-			break ;
-		}
-		i++;
-	}
-	i = 0;
-	allpartialpath = ft_split(env_path, ':');
-	cmd_array = ft_split(command, ' ');
-	while (allpartialpath[++i])
-	{
-		partial_path = ft_strjoin(allpartialpath[i], "/");
-		path = ft_strjoin(partial_path, cmd_array[0]);
+		partial_path = ft_strjoin(path_from_envp[i], "/");
+		complete_path = ft_strjoin(partial_path, cmd[0]);
 		free(partial_path);
-		if (access(path, F_OK | X_OK) == 0)
+		if (access(complete_path, F_OK | X_OK) == 0)
 		{
-			ft_free_array(cmd_array);
-			return (path);
+			ft_free_array(cmd);
+			return (complete_path);
 		}
-		free(path);
 	}
-	ft_free_array(allpartialpath);
-	ft_free_array(cmd_array);
+	ft_free_array(cmd);
 	return (command);
-}
-**/
-/**
-This function will get a path from the envp that has PATH in its string
-It looks something like this PATH=/bin/user:/local/sbin:/local/bin/....
-Our next task is to ft_split by :
-**/
-
-/**
-char	*get_path(char **array, char *cmd)
-{
-	int			i;
-	char		*allpath;
-	char		*tmp;
-	char		**path_array;
-	char		**cmd_array;
-	
-	i = -1;
-	while (array[i] != NULL) 
-	{
-		if (ft_strncmp(array[i], "PATH=", 5) == 0)
-		{
-			allpath = array[i] + 5;
-			break ;
-		}
-		i++;
-	}
-	path_array = ft_split(path, ':');
-	cmd_array = ft_split(cmd, ' ');
-	while (path_array[i++])
-	{
-		
-
-	}
-
-	return (path);
-}
-
-char	**get_path_array(char *cmd, char *path)
-{
-	char	*tmp;
-	char	**path_array;
-	int		i;
-
-	i = 0;
-	path_array = ft_split(path, ':');
-	while (path_array[i] != NULL)
-	{
-		tmp = add_slash(path_array[i]);
-		if (tmp == NULL)
-		{
-			ft_free_array(path_array);
-			return (NULL);
-		}
-		free(path_array[i]);
-		path_array[i] = ft_strjoin(tmp, cmd);
-		free(tmp);
-		if (path_array[i] == NULL)
-		{
-			ft_free_array(path_array);
-			return (NULL);
-		}
-		i++;
-	}
-	return (path_array);
 }
 
 void	check_fd(int int_fd, int out_fd)
@@ -177,4 +104,3 @@ void	check_fd(int int_fd, int out_fd)
 		close(out_fd);
 	}
 }
-**/
